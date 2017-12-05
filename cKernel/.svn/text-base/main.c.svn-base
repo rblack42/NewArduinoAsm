@@ -1,0 +1,41 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+volatile uint8_t intrs;
+
+ISR(TIMER0_OVF_vect) {
+	/* this ISR is called when TIMER0 overflows */
+	intrs++;
+	/* strobe PORTD.6 - the LED on Teensy2 boards */
+	if (intrs >= 61){
+		PORTD ^= _BV(6);
+		intrs = 0;
+	}
+}
+
+
+int
+main(void) {
+	/* 
+	 * set up cpu clock divider. the TIMER0 overflow ISR toggles the
+	 * output port after enough interrupts have happened.
+	 * 16MHz (FCPU) / 1024 (CS0 = 5) -> 15625 incr/sec
+	 * 15625 / 256 (number of values in TCNT0) -> 61 overflows/sec
+	 */
+	TCCR0B |= _BV(CS02) | _BV(CS00);
+
+	/* Enable Timer Overflow Interrupts */
+	TIMSK0 |= _BV(TOIE0);
+
+	/* other set up */
+	DDRD = 0xff;
+	TCNT0 = 0;
+	intrs = 0;
+
+	/* Enable Interrupts */
+	sei();
+
+	while (1)
+		; /* empty loop */
+}
+
