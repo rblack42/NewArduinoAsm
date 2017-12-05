@@ -1,8 +1,8 @@
-# Makefile for aBuzz
+# Makefile for cIntBlink
 
-TARGET	= cBlink
+TARGET	= cIntBlink
 
-INTTBL	= FALSE
+INTTBL	= TRUE
 
 # board definition
 BOARD = UNO
